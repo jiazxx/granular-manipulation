@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Robot Non-Prehensile Manipulation of Granular Piles</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-alt: #f7f9fc;
+      --text: #1f2937;
+      --muted: #5b6472;
+      --border: #e5e7eb;
+      --accent: #1d4ed8;
+      --accent-soft: #eff6ff;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header / Hero */
+    header {
+      padding: 52px 0 32px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    }
+
+    h1 {
+      font-size: clamp(1.55rem, 3vw, 2.2rem);
+      line-height: 1.25;
+      margin: 0 auto 14px;
+      max-width: 860px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.96rem;
+      margin-bottom: 8px;
+    }
+
+    .keywords {
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin-bottom: 0;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+
+    /* Sections */
+    section {
+      padding: 44px 0;
+    }
+
+    section.alt {
+      background: var(--bg-alt);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin: 0 0 16px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 0 0 8px;
+      font-weight: 650;
+    }
+
+    p.lead {
+      max-width: 860px;
+      margin: 0 auto 22px;
+      text-align: justify;
+      color: #374151;
+    }
+
+    /* Sub-navigation inside Physical Experiments */
+    .subnav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 auto 30px;
+    }
+
+    .subnav a {
+      font-size: 0.86rem;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--text);
+      border: 1px solid var(--border);
+      transition: all 0.15s ease;
+    }
+
+    .subnav a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .exp-block {
+      margin-top: 38px;
+    }
+
+    .exp-block:first-of-type {
+      margin-top: 10px;
+    }
+
+    .exp-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-bottom: 10px;
+      margin-bottom: 18px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .exp-header h3 {
+      font-size: 1.16rem;
+      margin: 0;
+      color: var(--text);
+    }
+
+    .exp-header .exp-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    /* Media containers */
+    .teaser-box, .figure-box {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+    }
+
+    video, img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 6px;
+    }
+
+    /* Encoded frames are 16:9 with side bars; show the square arena only. */
+    .video-grid video {
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      object-position: center center;
+      background: #111827;
+    }
+
+    .caption {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-top: 10px;
+      text-align: left;
+      line-height: 1.52;
+    }
+
+    .caption strong {
+      color: var(--text);
+    }
+
+    /* Grids */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    /* Every experiment clip uses the same four-column cell, so players stay equal. */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 0.91rem;
+      color: var(--muted);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.76rem;
+      font-weight: 650;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    /* Setup strip */
+    .setup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin: 0 auto 28px;
+    }
+
+    .setup-item {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      text-align: center;
+    }
+
+    .setup-item .val {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .setup-item .lbl {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 20px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 650;
+    }
+
+    td:first-child, th:first-child {
+      text-align: left;
+    }
+
+    tr.highlight {
+      background: #eff6ff;
+    }
+
+    .table-note {
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    footer {
+      padding: 28px 0 40px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 860px) {
+      .video-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .video-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <h1>Multi-Robot Non-Prehensile Manipulation of Granular Piles via Directional Partitioning and Asymmetric Yielding</h1>
+      <div class="meta">Anonymous Authors</div>
+      <div class="keywords">Keywords: Granular object pile · Non-prehensile manipulation · Multi-robot system</div>
+    </div>
+  </header>
+
+  <!-- Abstract -->
+  <section class="alt">
+    <div class="container">
+      <h2>Abstract</h2>
+      <p class="lead">
+        This letter proposes a hierarchical control and task allocation framework for efficient and collision free granular pile redistribution. Specifically, our architecture couples an upper guidance layer that fuses particle density fields with signed distance fields to direct material flow, and a lower execution layer that uses control barrier functions to enforce collision avoidance. Furthermore, we formulate an adaptive Voronoi partitioning scheme that integrates a directional penalty for favorable pushing alignment alongside particle density and transport distance metrics to jointly update region weights and centroids for dynamic load balancing. Finally, a payload prioritized dynamic yielding strategy is embedded within the safety constraints, compelling robots with lower forward particle occupancy to yield to heavily burdened teammates and minimize task interruptions. The effectiveness of the proposed method is validated through experiments with four E-Puck2 robots equipped with pushing blades.
+      </p>
+    </div>
+  </section>
+
+  <!-- Method -->
+  <section id="method">
+    <div class="container">
+      <h2>Method Overview</h2>
+      <div class="figure-box">
+        <img src="./assets/Picture1.png" alt="Overview of the proposed hierarchical framework">
+        <div class="caption">
+          <strong>Framework Architecture:</strong> At each step <em>k</em> &lt; <em>K</em><sub>max</sub>, overhead visual feedback provides the normalized occupancy field &rho;<sub><em>k</em></sub>, target SDF <em>d</em><sub>S</sub>, and robot poses <strong>q</strong><sub><em>i</em></sub> for direction-guided adaptive Voronoi partitioning and regional workload balancing <em>W</em><sub><em>i</em></sub>. Nominal commands <em>U</em><sub><em>k</em></sub><sup>nom</sup> are then filtered via load-prioritized sequential CBFs based on forward corridor occupancy <em>M</em><sub><em>i</em></sub><sup>corr</sup> to produce safe joint commands <em>U</em><sub><em>k</em></sub><sup>safe</sup>.
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-top"><span class="tag">Upper Layer</span></div>
+          <h3>Density &amp; SDF Guidance</h3>
+          <p>Couples a 64&times;64 Eulerian particle density field &rho;<sub><em>k</em></sub> with the target Euclidean SDF <em>d</em><sub>S</sub> to pair exterior clusters with unfilled interior vacancies while limiting steering deviation.</p>
+        </div>
+        <div class="card">
+          <div class="card-top"><span class="tag">Task Allocation</span></div>
+          <h3>Directional Adaptive Voronoi</h3>
+          <p>Augments squared Euclidean distance with a cosine angular penalty &lambda;<sub>dir</sub> and alternates tethered centroid migration with capacity bias adaptation to balance regional workloads <em>W</em><sub><em>i</em></sub>.</p>
+        </div>
+        <div class="card">
+          <div class="card-top"><span class="tag">Lower Layer</span></div>
+          <h3>Payload-Prioritized CBF Yielding</h3>
+          <p>Sorts active robots by forward corridor particle occupancy <em>M</em><sub><em>i</em></sub><sup>corr</sup> and applies sequential CBF velocity filtering with deadlock retraction so lightly loaded robots yield to heavily loaded peers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Physical Experiments -->
+  <section id="physical" class="alt">
+    <div class="container">
+      <h2>Physical Experiments</h2>
+      <p class="lead">
+        All experiments are conducted on a physical multi-robot testbed with four E-Puck2 mobile robots of 7.0 cm diameter, each fitted with a custom 4.4 cm 3D-printed front pushing plate, operating in a 0.5 m &times; 0.5 m arena containing 60 red 3D-printed granular blocks of 2 cm side length. An overhead RGB camera running at 1280&times;720 and 30 Hz tracks ArUco markers for real-time planar poses and updates the 64&times;64 density field &rho;<sub><em>k</em></sub>, while velocity commands are sent at 25 Hz via ROS 2 over Wi-Fi. Each trial executes <em>K</em><sub>max</sub> = 50 steps, with each step comprising outer-track repositioning followed by a 1.65 s synchronized inward pushing stroke.
+      </p>
+
+      <div class="setup-grid">
+        <div class="setup-item">
+          <div class="val">4 &times; E-Puck2</div>
+          <div class="lbl">7.0 cm dia. · 4.4 cm plate</div>
+        </div>
+        <div class="setup-item">
+          <div class="val">0.5 m &times; 0.5 m</div>
+          <div class="lbl">60 granular blocks, 2 cm side</div>
+        </div>
+        <div class="setup-item">
+          <div class="val">30 Hz / 25 Hz</div>
+          <div class="lbl">Overhead RGB / ROS 2 control</div>
+        </div>
+        <div class="setup-item">
+          <div class="val"><em>K</em><sub>max</sub> = 50 steps</div>
+          <div class="lbl">1.65 s synchronized push</div>
+        </div>
+      </div>
+
+      <div class="subnav">
+        <a href="#exp-romi">1. Proposed Method</a>
+        <a href="#exp-baselines">2. Baseline Comparisons</a>
+        <a href="#exp-robustness">3. Robustness Tests</a>
+      </div>
+
+      <div class="exp-block" id="exp-romi">
+        <div class="exp-header">
+          <h3>1. Proposed Framework</h3>
+          <span class="exp-desc">50 steps · &eta;<sub>in</sub>: 72%–85% · J<sub>trans</sub>: 0.5–1.2 · Cov.: 53%–70% · d<sub>min</sub> &ge; 10 cm</span>
+        </div>
+
+        <div class="video-grid">
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/R_our.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Target Letter "R":</strong> &eta;<sub>50</sub> = 80.3%, <em>J</em><sub>50</sub> = 0.70, Cov.<sub>50</sub> = 53.2%, alignment error 16.2&deg;.</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/O_our.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Target Letter "O":</strong> 50-step aggregation into "O", with separation above <em>d</em><sub>safe</sub> = 0.10 m.</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/M_our.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Target Letter "M":</strong> 50-step formation with density-SDF targeting and adaptive Voronoi balancing.</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/I_our.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Target Letter "I":</strong> 50-step formation into "I" without collisions or deadlocks.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Part 2: Five Baseline Methods on letters R and O -->
+      <div class="exp-block" id="exp-baselines">
+        <div class="exp-header">
+          <h3>2. Baseline Comparisons</h3>
+          <span class="exp-desc">5 baselines on target letters R and O</span>
+        </div>
+
+        <div class="video-grid">
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/R_cen.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Centroid · R:</strong> Pushes clusters to the geometric center. &eta;<sub>50</sub> = 75.0%, <em>J</em><sub>50</sub> = 1.38, Align. = 31.0&deg;.</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/O_cen.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Centroid · O:</strong> Center-seeking aggregation into the letter "O".</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/R_static.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Static Quadrant · R:</strong> Fixed split with <em>T</em><sub>cvt</sub> = 0. Alignment error is 6.7&deg;, but &sigma;&#772;<sub><em>W</em></sub> = 286.7.</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/O_static.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Static Quadrant · O:</strong> Fixed diagonal split on the letter "O".</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/R_voro.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Weighted Voronoi Partition · R:</strong> &lambda;<sub>dir</sub> = 0. Alignment error is 26.3&deg; and &sigma;&#772;<sub><em>W</em></sub> = 227.1.</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/O_voron.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Weighted Voronoi Partition · O:</strong> Balancing with &lambda;<sub>dir</sub> = 0 on the letter "O".</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/R_fix.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Risk-driven yielding · R:</strong> Yielding follows collision risk, with a 22.2% high-load interruption rate.</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/O_fix.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Risk-driven yielding · O:</strong> Yielding follows collision risk on the letter "O".</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/R_symm.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Symmetric yielding · R:</strong> Equal velocity clipping gives a 50.0% high-load interruption rate.</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/O_sym.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Symmetric yielding · O:</strong> Equal velocity clipping while forming "O".</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Part 3: Three Robustness Verification Tests (Letter R) — 1x3 Row -->
+      <div class="exp-block" id="exp-robustness">
+        <div class="exp-header">
+          <h3>3. Robustness Verification</h3>
+          <span class="exp-desc">3 non-ideal stress tests, each averaged over 3 independent trials</span>
+        </div>
+
+        <div class="video-grid">
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/R_one.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>One-Sided:</strong> Particles start on the right. Boundaries shift to recruit robots, with &eta;<sub>50</sub> = 74.8%.</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/R_fail.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Robot Failure:</strong> Robot 1 stops at step 20. The other three rebalance the load and reach &eta;<sub>50</sub> = 68.3%.</div>
+          </div>
+
+          <div class="card">
+            <video class="lazy-video" loop muted playsinline controls preload="metadata">
+              <source src="./assets/R_ran.mp4" type="video/mp4">
+            </video>
+            <div class="caption"><strong>Random Poses:</strong> Robots start from asymmetric poses and reorganize safely, with &eta;<sub>50</sub> = 74.8%.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quantitative Comparison Table (matches Table II in manuscript) -->
+  <section id="quantitative">
+    <div class="container">
+      <h2>Quantitative Comparison with Baselines</h2>
+      <p class="lead">
+        Comparison of final target mass ratio &eta;<sub>50</sub>, exterior spatial transport cost <em>J</em><sub>50</sub>, area coverage Cov.<sub>50</sub>, pushing alignment error Align., mean inter-robot workload standard deviation &sigma;&#772;<sub><em>W</em></sub>, and high-load stroke interruption rate High int. across 50 pushing steps.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>&eta;<sub>50</sub> % &uarr;</th>
+              <th><em>J</em><sub>50</sub> &darr;</th>
+              <th>Cov.<sub>50</sub> % &uarr;</th>
+              <th>Align. &deg; &darr;</th>
+              <th>&sigma;&#772;<sub><em>W</em></sub> &darr;</th>
+              <th>High int. % &darr;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight">
+              <td><strong>Ours</strong></td>
+              <td><strong>80.3</strong></td>
+              <td><strong>0.70</strong></td>
+              <td>53.2</td>
+              <td>16.2</td>
+              <td><strong>64.2</strong></td>
+              <td><strong>0.0</strong></td>
+            </tr>
+            <tr>
+              <td>Centroid</td>
+              <td>75.0</td>
+              <td>1.38</td>
+              <td><strong>53.4</strong></td>
+              <td>31.0</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>Static Quadrant</td>
+              <td>73.3</td>
+              <td>1.22</td>
+              <td>50.4</td>
+              <td><strong>6.7</strong></td>
+              <td>286.7</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>Weighted Voronoi Partition</td>
+              <td>69.5</td>
+              <td>2.54</td>
+              <td>48.3</td>
+              <td>26.3</td>
+              <td>227.1</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>Risk-driven yielding</td>
+              <td>69.4</td>
+              <td>3.40</td>
+              <td>49.0</td>
+              <td>-</td>
+              <td>-</td>
+              <td>22.2</td>
+            </tr>
+            <tr>
+              <td>Symmetric yielding</td>
+              <td>78.3</td>
+              <td>0.83</td>
+              <td>51.7</td>
+              <td>-</td>
+              <td>-</td>
+              <td>50.0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-note">
+        Bold values denote the best result in each column. High-load interruption rate measures the percentage of high-load pushing strokes with <em>v</em><sub><em>i</em></sub><sup>safe</sup> &lt; 0.50 <em>v</em><sub><em>i</em></sub><sup>nom</sup>.
+      </div>
+    </div>
+  </section>
+
+  <!-- Lightweight scroll-aware autoplay so 12 videos play smoothly without overloading bandwidth -->
+<script>
+   document.addEventListener("DOMContentLoaded", () => {
+    const videos = document.querySelectorAll("video.lazy-video");
+    // 立即尝试播放所有视频，不依赖 Intersection Observer
+    videos.forEach((v) => {
+      v.play().catch(() => {});
+      // 同时保留 Intersection Observer 逻辑作为后备
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.play().catch(() => {});
+            } else {
+              entry.target.pause();
+            }
+          });
+        }, { threshold: 0.25 });
+        observer.observe(v);
+      }
+    });
+   });
+  </script>
+
+</body>
+</html>
